@@ -1206,11 +1206,12 @@ class MkSolar extends HTMLElement {
       @media (max-width: 900px) {
         :host { padding-bottom:6px; }
         .stage { border-radius:14px; }
-        #wxStars, #wxLayer { display:none !important; }
+        #wxStars { display:none !important; }
+        #wxLayer { display:block !important; }
         .dim { opacity:.72 !important; }
       }
-      :host(.cl-tablet-lite) #wxStars,
-      :host(.cl-tablet-lite) #wxLayer { display:none !important; }
+      :host(.cl-tablet-lite) #wxStars { display:none !important; }
+      :host(.cl-tablet-lite) #wxLayer { display:block !important; }
       :host(.cl-tablet-lite) .bg { transition:none !important; }
       :host(.cl-tablet-lite) *,
       :host(.cl-tablet-lite) *::before,
@@ -1239,6 +1240,13 @@ class MkSolar extends HTMLElement {
       @keyframes clSnow{0%{transform:translateY(-10px) translateX(0)}25%{transform:translateY(28%) translateX(8px)}50%{transform:translateY(56%) translateX(-5px)}75%{transform:translateY(82%) translateX(9px)}100%{transform:translateY(110%) translateX(3px)}}
       @keyframes clLightning{0%,85%,88%,92%,100%{opacity:0}86%,90%{opacity:.8}}
       @keyframes clFogDrift{0%{transform:translateX(-6%)}100%{transform:translateX(6%)}}
+      :host(.cl-tablet-lite) #wxLayer .wxRain {
+        animation:clRain var(--wx-d) linear var(--wx-delay) infinite !important;
+      }
+      :host(.cl-tablet-lite) #wxLayer .wxFlash,
+      :host(.cl-tablet-lite) #wxLayer .wxBolt {
+        animation:clLightning 5.8s ease-in-out infinite !important;
+      }
       /* live device-tile animations (lifted from room card) */
       @keyframes clSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
       .tileSpin{animation:clSpin 2.4s linear infinite;transform-origin:center;transform-box:fill-box}
@@ -4249,10 +4257,12 @@ this._built = true;
   /* Robust weather detection (ported from mk-solar): tries configured + common entities */
   /* ═══════════════════════ WEATHER & BACKGROUND ═══════════════════════ */
   _wxCondition() {
-    const candidates = [
+    const configured = [
       this.config.weather_entity, 'weather.home', 'weather.forecast_home',
       'weather.home_hourly', 'weather.home_daily', 'weather.open_meteo', 'weather.openweathermap',
     ].filter(Boolean);
+    const discovered = Object.keys(this._hass?.states || {}).filter(id => id.startsWith('weather.'));
+    const candidates = [...new Set([...configured, ...discovered])];
     let state = null;
     for (const eid of candidates) {
       const s = this._hass?.states[eid];
@@ -4289,15 +4299,18 @@ this._built = true;
     if (!el) return;
     let html = '';
     if (condition === 'rainy' || condition === 'thunderstorm') {
-      const count = condition === 'thunderstorm' ? 55 : 38;
+      const lite = this._isMobileViewport() || this._tabletPerfMode;
+      const count = lite ? (condition === 'thunderstorm' ? 22 : 16) : (condition === 'thunderstorm' ? 55 : 38);
       for (let i = 0; i < count; i++) {
         const l = (i*79%100).toFixed(1), h = (1+(i%3)*0.5).toFixed(1);
         const d = (0.45+(i%6)*0.08).toFixed(2), op = (0.25+(i%4)*0.08).toFixed(2);
         const delay = -((i*0.11)%parseFloat(d)).toFixed(2);
-        html += `<div style="position:absolute;top:0;left:${l}%;width:${h}px;height:14px;background:rgba(180,210,255,${op});border-radius:1px;animation:clRain ${d}s linear ${delay}s infinite"></div>`;
+        html += `<div class="wxRain" style="--wx-d:${d}s;--wx-delay:${delay}s;position:absolute;top:0;left:${l}%;width:${h}px;height:18px;background:rgba(180,220,255,${op});border-radius:1px;animation:clRain ${d}s linear ${delay}s infinite;will-change:transform"></div>`;
       }
-      if (condition === 'thunderstorm')
-        html += `<div style="position:absolute;inset:0;background:rgba(200,220,255,0.04);animation:clLightning 5.8s ease-in-out infinite"></div>`;
+      if (condition === 'thunderstorm') {
+        html += `<div class="wxFlash" style="position:absolute;inset:0;background:rgba(220,235,255,.22);mix-blend-mode:screen;animation:clLightning 5.8s ease-in-out infinite"></div>`;
+        html += `<div class="wxBolt" style="position:absolute;left:62%;top:7%;width:94px;height:250px;background:linear-gradient(180deg,#fff,#d9edff 55%,#75bfff);clip-path:polygon(54% 0,30% 43%,52% 43%,34% 100%,76% 36%,53% 36%,78% 0);filter:drop-shadow(0 0 12px #d9edff) drop-shadow(0 0 24px #6eb7ff);opacity:0;animation:clLightning 5.8s ease-in-out infinite"></div>`;
+      }
     }
     if (condition === 'snowy') {
       for (let i = 0; i < 38; i++) {

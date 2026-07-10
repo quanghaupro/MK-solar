@@ -1,14 +1,12 @@
 // MK Solar Public Edition v1.0.0 — sanitized distribution build
 /* ════════════════════════════════════════════════════════════════════
    mk-solar.js — MK Solar Edition
-   Custom element: <mk-solar>  (renamed from mk-solar to avoid
-   customElements collision when both cards are installed)
+   Custom element: <mk-solar>
 
-   • Config keys are 100% compatible with mk_solar.js / mk-solar —
-     existing YAML keeps working unchanged.
+   • Configuration is managed directly through MK Solar YAML or its editor.
    • Layout: canonical SLOTS measured from template 60883 (1500×1000).
    • Backgrounds: /local/community/mk-solar/sky/mk-solar-<variant>.png
-     (same files & variant logic as before; path configurable).
+     The background path is configurable.
    ════════════════════════════════════════════════════════════════════ */
 
 (() => {

@@ -32,7 +32,7 @@ Khi cài thủ công, đặt `background_path` thành `/local/community/MK-solar
 ## Cấu hình tối thiểu
 
 ```yaml
-type: custom:casa-luna
+type: custom:mk-solar
 title: MK SOLAR
 language: vi
 background_path: /hacsfiles/MK-solar/sky

@@ -1,13 +1,13 @@
 // MK Solar Public Edition v1.0.0 — sanitized distribution build
 /* ════════════════════════════════════════════════════════════════════
-   casa-luna.js — Casa Luna Edition
-   Custom element: <casa-luna>  (renamed from khan-skycard to avoid
+   mk-solar.js — MK Solar Edition
+   Custom element: <mk-solar>  (renamed from mk-solar to avoid
    customElements collision when both cards are installed)
 
-   • Config keys are 100% compatible with casa_luna.js / khan-skycard —
+   • Config keys are 100% compatible with mk_solar.js / mk-solar —
      existing YAML keeps working unchanged.
    • Layout: canonical SLOTS measured from template 60883 (1500×1000).
-   • Backgrounds: /local/community/casa-luna/sky/casa-luna-<variant>.png
+   • Backgrounds: /local/community/mk-solar/sky/mk-solar-<variant>.png
      (same files & variant logic as before; path configurable).
    ════════════════════════════════════════════════════════════════════ */
 
@@ -620,9 +620,9 @@ const NAV_VIEWS = [
 /* ════════════════════════════════════════════════════════════════════
    CARD
    ════════════════════════════════════════════════════════════════════ */
-class CasaLuna extends HTMLElement {
+class MkSolar extends HTMLElement {
 
-  /* —— config (keys preserved from casa_luna.js, plus additive keys) —— */
+  /* —— config (keys preserved from mk_solar.js, plus additive keys) —— */
   static getStubConfig() {
     return {
       pv1_power: '',
@@ -693,7 +693,7 @@ class CasaLuna extends HTMLElement {
       thresh_soc_low: 25, thresh_soc_critical: 15,
       thresh_load_warn: 70, thresh_load_critical: 90,
       thresh_endurance_low: 2, thresh_endurance_crit: 1,
-      /* —— additive (new in casa-luna) —— */
+      /* —— additive (new in mk-solar) —— */
       title: 'MK SOLAR',
       background_path: '/hacsfiles/MK-solar/sky',
       edge_dim_opacity: 100,
@@ -798,7 +798,7 @@ class CasaLuna extends HTMLElement {
     };
   }
 
-  static getConfigElement() { return document.createElement('casa-luna-editor'); }
+  static getConfigElement() { return document.createElement('mk-solar-editor'); }
   /* ═══════════════════════ LIFECYCLE & HASS ═══════════════════════ */
   getCardSize() { return 8; }
 
@@ -812,7 +812,7 @@ class CasaLuna extends HTMLElement {
     this._histCache = {};   // entity -> {t, pts}
     this._historyReadyAt = Date.now() + 3500;
     this._lastMinute = -1;
-    // PV wave double-buffer (matches khan-skycard exactly)
+    // PV wave double-buffer (matches mk-solar exactly)
     this._pvSlot = 'A';
     this._prevPvTier = -1;
     this._prevPvWaveBx = -1;
@@ -821,7 +821,7 @@ class CasaLuna extends HTMLElement {
   }
 
   setConfig(config) {
-    const stub = CasaLuna.getStubConfig();
+    const stub = MkSolar.getStubConfig();
     const merged = { ...stub, ...config };
     /* type guard: a hand-written YAML value like thresh_temp_warn: "40" (string) would
        otherwise silently rely on JS's loose comparison coercion everywhere it's read —
@@ -875,9 +875,9 @@ class CasaLuna extends HTMLElement {
       if (watched.has(id)) continue;
       const dom = id.split('.')[0];
       const dc = states[id].attributes?.device_class;
-      if (CasaLuna.AUTODISC_DOMAINS.has(dom)
-        || (dom === 'binary_sensor' && CasaLuna.AUTODISC_BINARY_DC.has(dc))
-        || (dom === 'sensor' && CasaLuna.AUTODISC_SENSOR_DC.has(dc))) {
+      if (MkSolar.AUTODISC_DOMAINS.has(dom)
+        || (dom === 'binary_sensor' && MkSolar.AUTODISC_BINARY_DC.has(dc))
+        || (dom === 'sensor' && MkSolar.AUTODISC_SENSOR_DC.has(dc))) {
         sig += id + ':' + (states[id].last_updated || states[id].state) + '|';
       }
     }
@@ -1202,7 +1202,7 @@ class CasaLuna extends HTMLElement {
         transform-origin:top left; }
       .bg { position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
         transition:opacity 1.6s ease; }
-      /* —— weather system overlays (ported from khan-skycard) —— */
+      /* —— weather system overlays (ported from mk-solar) —— */
       #wxStars { position:absolute; left:0; top:0; width:${VB_W}px; height:58%; pointer-events:none; transition:opacity 1.4s ease; z-index:1; }
       #wxLayer { position:absolute; inset:0; overflow:hidden; pointer-events:none; z-index:1; }
       @media (max-width: 900px) {
@@ -1586,28 +1586,9 @@ class CasaLuna extends HTMLElement {
   _localizedConfig() {
     const c = { ...this.config };
     if (!this._lang || this._lang === 'en' || !LANG[this._lang]) return c;
-    const stub = CasaLuna.getStubConfig();
+    const stub = MkSolar.getStubConfig();
     for (const k in c) if (k.indexOf('label_') === 0 && c[k] === stub[k]) c[k] = this._t(stub[k]);
     return c;
-  }
-
-  /* Public distribution build. */
-  _attrPhrase() {
-    return '';
-  }
-  _verifyAttribution() {
-    return true;
-  }
-  _lockCard() {
-    this._locked = true;
-    this.shadowRoot.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;width:100%;aspect-ratio:${VB_W}/${VB_H};
-        background:#0a0e14;color:#ff6a6a;font-family:'Segoe UI',Roboto,system-ui,sans-serif;text-align:center;padding:24px">
-        <div>
-          <div style="font-size:20px;font-weight:700;margin-bottom:8px">Casa Luna — attribution required</div>
-          <div style="font-size:13px;color:#a8cae6">This card's author credit has been altered or removed. Restore it to continue using the card.</div>
-        </div>
-      </div>`;
   }
 
   _build() {
@@ -2189,7 +2170,7 @@ class CasaLuna extends HTMLElement {
              Use card x=300 = SVG x=(300-170)/1.6587 = 78 → verified ~299 card px
        POLE P(300,321) → right 16 H-dots (312px) → corner → down 6 V-dots (60px) → R(612,381)
          Arrow at R: one dash RIGHT ►
-         Colour: khan-skycard exactly — importing=#e07800 orange, exporting=#39ff14 green
+         Colour: mk-solar exactly — importing=#e07800 orange, exporting=#39ff14 green
     */
     const A_Y    = SL.r_stats[1] + 38 + 3 * 46 + 9 + 20;  // 341 (base)
     const H_DASH = 13.5, H_GAP = 6, H_CYC = H_DASH + H_GAP;  // 19.5
@@ -2388,11 +2369,7 @@ class CasaLuna extends HTMLElement {
 
     /* interactions */
     this._bindEvents();
-
-    /* attribution check — must run after the subtitle node exists in the DOM */
-    if (!this._verifyAttribution()) { this._lockCard(); return; }
-
-    this._built = true;
+this._built = true;
     this._applyTheme();
     this._setBackground(true);
   }
@@ -3017,10 +2994,10 @@ class CasaLuna extends HTMLElement {
     const end = (e) => {
       if (!this._panelBusy) return;
       this._panelBusy = false;
-      try { track.releasePointerCapture(e.pointerId); } catch (e2) { console.debug('casa-luna: releasePointerCapture no-op', e2); }
+      try { track.releasePointerCapture(e.pointerId); } catch (e2) { console.debug('mk-solar: releasePointerCapture no-op', e2); }
       if (v != null) commit(v);
     };
-    track.addEventListener('pointerdown', e => { this._panelBusy = true; v = fromX(e.clientX); try { track.setPointerCapture(e.pointerId); } catch (e2) { console.debug('casa-luna: setPointerCapture no-op', e2); } });
+    track.addEventListener('pointerdown', e => { this._panelBusy = true; v = fromX(e.clientX); try { track.setPointerCapture(e.pointerId); } catch (e2) { console.debug('mk-solar: setPointerCapture no-op', e2); } });
     track.addEventListener('pointermove', e => { if (this._panelBusy) v = fromX(e.clientX); });
     track.addEventListener('pointerup', end);
     track.addEventListener('pointercancel', () => { this._panelBusy = false; });
@@ -3973,7 +3950,7 @@ class CasaLuna extends HTMLElement {
     try {
       const all = await Promise.all(cals.map(c => this._hass.callApi('GET', `calendars/${encodeURIComponent(c)}?start=${encodeURIComponent(start)}&end=${encodeURIComponent(end)}`).catch(() => [])));
       events = all.flat().filter(Boolean);
-    } catch (e2) { console.warn('casa-luna: calendar fetch failed', e2); events = []; }
+    } catch (e2) { console.warn('mk-solar: calendar fetch failed', e2); events = []; }
     if (this._calMonth.getMonth() !== month || this._calMonth.getFullYear() !== year) return;  // user navigated away
     const byDay = {};
     events.forEach(e => {
@@ -4271,7 +4248,7 @@ class CasaLuna extends HTMLElement {
   }
 
   /* ══════════════ BACKGROUND VARIANTS (same files/logic) ══════════════ */
-  /* Robust weather detection (ported from khan-skycard): tries configured + common entities */
+  /* Robust weather detection (ported from mk-solar): tries configured + common entities */
   /* ═══════════════════════ WEATHER & BACKGROUND ═══════════════════════ */
   _wxCondition() {
     const candidates = [
@@ -4294,7 +4271,7 @@ class CasaLuna extends HTMLElement {
       return (state.includes('partly') || state.includes('few') || state.includes('scattered')) ? 'partlycloudy' : 'cloudy';
     return 'clear';
   }
-  /* Twinkling star field SVG (night only) — ported from khan-skycard */
+  /* Twinkling star field SVG (night only) — ported from mk-solar */
   _starField(count) {
     let seed = Math.floor(Date.now() / 86400000);
     const rng = () => { seed = (seed * 1664525 + 1013904223) & 0xffffffff; return (seed >>> 0) / 0xffffffff; };
@@ -4309,7 +4286,7 @@ class CasaLuna extends HTMLElement {
     }
     return svg;
   }
-  /* Weather particle overlay (rain/shower, snow, thunderstorm+lightning, fog) — ported from khan-skycard */
+  /* Weather particle overlay (rain/shower, snow, thunderstorm+lightning, fog) — ported from mk-solar */
   _buildWxLayer(el, condition, isDay) {
     if (!el) return;
     let html = '';
@@ -4343,22 +4320,22 @@ class CasaLuna extends HTMLElement {
     el.innerHTML = html;
   }
   _bgVariantKey() {
-    // Background math identical to khan-skycard: bell + sun-arc position (t) drive dawn/dusk.
+    // Background math identical to mk-solar: bell + sun-arc position (t) drive dawn/dusk.
     const sun = this._sunData();
     const isDay = !sun.night;
     const bell = sun.bell ?? 0.5;
     const isDawn = isDay && bell < 0.22 && sun.t < 0.5;
     const isDusk = isDay && bell < 0.22 && sun.t >= 0.5;
     const cond = this._wxCondition();
-    if (cond === 'partlycloudy') return isDay ? 'casa-luna-partlycloudy-day' : 'casa-luna-partlycloudy-night';
-    if (cond === 'cloudy') return isDay ? 'casa-luna-cloudy-day' : 'casa-luna-cloudy-night';
-    if (cond === 'thunderstorm') return 'casa-luna-thunderstorm';
-    if (cond === 'rainy') return isDay ? 'casa-luna-rainy-day' : 'casa-luna-rainy-night';
-    if (cond === 'snowy') return 'casa-luna-snowy-day';
-    if (cond === 'fog') return 'casa-luna-fog-day';
-    if (isDawn) return 'casa-luna-clear-dawn';
-    if (isDusk) return 'casa-luna-clear-dusk';
-    return isDay ? 'casa-luna-clear-day' : 'casa-luna-clear-night';
+    if (cond === 'partlycloudy') return isDay ? 'mk-solar-partlycloudy-day' : 'mk-solar-partlycloudy-night';
+    if (cond === 'cloudy') return isDay ? 'mk-solar-cloudy-day' : 'mk-solar-cloudy-night';
+    if (cond === 'thunderstorm') return 'mk-solar-thunderstorm';
+    if (cond === 'rainy') return isDay ? 'mk-solar-rainy-day' : 'mk-solar-rainy-night';
+    if (cond === 'snowy') return 'mk-solar-snowy-day';
+    if (cond === 'fog') return 'mk-solar-fog-day';
+    if (isDawn) return 'mk-solar-clear-dawn';
+    if (isDusk) return 'mk-solar-clear-dusk';
+    return isDay ? 'mk-solar-clear-day' : 'mk-solar-clear-night';
   }
   _weatherArtFile() {
     // Use the weather-art set from the alternate version, while keeping all MT layout/data unchanged.
@@ -4393,7 +4370,7 @@ class CasaLuna extends HTMLElement {
       fallback.onerror = () => {
         const fallback2 = new Image();
         fallback2.onload = () => { showEl.src = fallback2.src; showEl.style.opacity = 1; hideEl.style.opacity = 0; };
-        fallback2.onerror = () => { showEl.src = `${BASE}/casa-luna.png`; showEl.style.opacity = 1; hideEl.style.opacity = 0; };
+        fallback2.onerror = () => { showEl.src = `${BASE}/mk-solar.png`; showEl.style.opacity = 1; hideEl.style.opacity = 0; };
         fallback2.src = `${BASE}/${key}.png`;
       };
       fallback.src = `${BASE}/${weatherArt.replace(/\.webp$/i, '.png')}`;
@@ -4668,7 +4645,7 @@ class CasaLuna extends HTMLElement {
     }
     /* Endurance (khan logic): driven by battery power, not house load.
        Discharging → time to empty; Charging → ETA to full (cyan, labeled ETA).
-       casa-luna sign: bP>0 discharging, bP<0 charging (already invert-normalized). */
+       mk-solar sign: bP>0 discharging, bP<0 charging (already invert-normalized). */
     let endHours = NaN, endText = '--', isETA = false;
     if (c._show_battery2) {
       const soc1 = this._num(c.battery_soc, NaN), soc2 = this._num(c.battery2_soc, NaN);
@@ -4821,7 +4798,7 @@ class CasaLuna extends HTMLElement {
         loadWel.setAttribute('fill', battCore);
       }
 
-      /* Pole colours — exact khan-skycard:
+      /* Pole colours — exact mk-solar:
          importing (gW > 10): dark orange #e07800
          exporting (gW < -10): neon green #39ff14 */
       const gridImporting = gW >  10;
@@ -5022,7 +4999,7 @@ class CasaLuna extends HTMLElement {
       <circle cx="0" cy="0" r="${r}" fill="none" stroke="rgba(220,235,255,0.55)" stroke-width="1.5" mask="url(#${uid}lm)"/>`;
   }
 
-  /* ══ PV wave helpers (identical to khan-skycard) ══ */
+  /* ══ PV wave helpers (identical to mk-solar) ══ */
   _flowLevel(w, type) {
     if (type === 'solar') {
       if (w < 200)  return { dur: 4,   size: 1.8, count: 6  };
@@ -6127,7 +6104,7 @@ class CasaLuna extends HTMLElement {
 /* ════════════════════════════════════════════════════════════════════
    EDITOR — compact sectioned editor, same key names
    ════════════════════════════════════════════════════════════════════ */
-class CasaLunaEditor extends HTMLElement {
+class MkSolarEditor extends HTMLElement {
   setConfig(config) {
     this._config = { ...config };
     if (this._ownChange) return;     // ignore HA echo of our own change
@@ -6904,22 +6881,22 @@ class CasaLunaEditor extends HTMLElement {
 }
 
 /* ── register (collision-safe) ── */
-class CasaLunaWave extends CasaLuna {}
-if (!customElements.get('casa-luna')) customElements.define('casa-luna', CasaLuna);
-if (!customElements.get('casa-luna-wave')) customElements.define('casa-luna-wave', CasaLunaWave);
-if (!customElements.get('casa-luna-editor')) customElements.define('casa-luna-editor', CasaLunaEditor);
+class MkSolarWave extends MkSolar {}
+if (!customElements.get('mk-solar')) customElements.define('mk-solar', MkSolar);
+if (!customElements.get('mk-solar-wave')) customElements.define('mk-solar-wave', MkSolarWave);
+if (!customElements.get('mk-solar-editor')) customElements.define('mk-solar-editor', MkSolarEditor);
 window.customCards = window.customCards || [];
 window.customCards.push({
-  type: 'casa-luna',
-  name: 'Casa Luna',
-  description: 'Casa Luna energy dashboard.',
+  type: 'mk-solar',
+  name: 'MK Solar',
+  description: 'MK Solar energy dashboard.',
   preview: false,
 });
 window.customCards.push({
-  type: 'casa-luna-wave',
-  name: 'Casa Luna Wave',
+  type: 'mk-solar-wave',
+  name: 'MK Solar Wave',
   description: 'Compatibility alias for existing MK Solar dashboard instances.',
   preview: false,
 });
-console.info('CASA-LUNA v' + VERSION);
+console.info('MK-SOLAR v' + VERSION);
 })();
